@@ -1,0 +1,18 @@
+# Maven / Java build output
+target/
+**/target/
+
+# Node / Playwright
+node_modules/
+playwright-report/
+test-results/
+*.zip
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
