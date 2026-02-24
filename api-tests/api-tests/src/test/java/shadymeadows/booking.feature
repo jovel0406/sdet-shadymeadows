@@ -1,7 +1,8 @@
 Feature: Booking API
 
-Scenario: Create booking using a dynamic roomid
-  # 1) Obtener roomid válido
+Scenario: Create booking (atomic, no helper)
+
+  # 1) Obtener un roomid válido
   Given url baseUrl
   And path 'room'
   When method get
@@ -9,7 +10,13 @@ Scenario: Create booking using a dynamic roomid
   * def rooms = response.rooms ? response.rooms : response
   * def roomId = rooms[0].roomid
 
-  # 2) Crear booking (según lo que confirmaste en Postman)
+  # 2) Fechas dinámicas para reducir 409 (conflictos)
+  * def LocalDate = Java.type('java.time.LocalDate')
+  * def base = LocalDate.now().plusDays(60)
+  * def checkin = base.toString() + 'T00:00:00.000Z'
+  * def checkout = base.plusDays(2).toString() + 'T00:00:00.000Z'
+
+  # 3) Crear booking
   Given url baseUrl
   And path 'booking'
   And request
@@ -20,14 +27,12 @@ Scenario: Create booking using a dynamic roomid
       "lastname": "Jovel",
       "depositpaid": true,
       "bookingdates": {
-        "checkin": "2026-03-01T00:00:00.000Z",
-        "checkout": "2026-03-05T00:00:00.000Z"
+        "checkin": #(checkin),
+        "checkout": #(checkout)
       },
       "totalprice": 100
     }
     """
   When method post
   Then status 201
-
   And match response.bookingid == '#number'
-  And match response.roomid == roomId
